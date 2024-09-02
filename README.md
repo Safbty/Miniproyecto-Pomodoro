@@ -1,0 +1,1 @@
+Este mini proyecto ha sido elaborado por el grupo número 4 del Informatorio. Se trata de una aplicacion con un contador de la técnica pomodoro, con una lista de tareas integrada y con una interfaz que puede ser adaptada a las preferencias del usuario (Ejemplo: Dark mode y Light mode).
