@@ -17,4 +17,8 @@ VENTANA_INICIAL_ALTO = 400
 INPUT_TAREAS_MODO_DIA = "#b4b9bc"  # Pewter
 
 #Fuentes
+# Fuentes
+FUENTE_CABECERA = ("Courier", 24)  # Fuente para cabeceras
+FUENTE_BOTON = ("Courier", 14)     # Fuente para botones
+FUENTE_ENTRADA = ("Arial", 12)      # Fuente para entradas de texto
 

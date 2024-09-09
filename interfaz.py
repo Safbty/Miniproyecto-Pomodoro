@@ -2,6 +2,7 @@ from tkinter import *
 from temporizador import Temporizador
 from tareas import Tareas
 from config import *
+from tkinter import messagebox
 
 class InterfazPomodoro:
     def __init__(self, temporizador):
@@ -23,138 +24,97 @@ class InterfazPomodoro:
         menu_tema.add_command(label="Modo noche", command=self.modo_noche)
         menu_tema.add_command(label="Modo día", command=self.modo_dia)
 
-        menu_preferencias = Menu(barra_menu, tearoff=0)
-        barra_menu.add_cascade(label="Preferencias", menu=menu_preferencias)
-        menu_preferencias.add_command(label="Expandir", command=self.expandir)
-        menu_preferencias.add_command(label="Contraer", command=self.contraer)
+        # Mostrar tiempo restante
+        self.tiempo_restante = Label(self.window, text="25:00", font=FUENTE_CABECERA, bg=AMARILLO)
+        self.tiempo_restante.grid(column=1, row=0)
 
-        # Canvas para mostrar el temporizador y la imagen del tomate
-        self.canvas_timer = Canvas(self.window, width=250, height=250, bg=AMARILLO, highlightthickness=0)
-        self.reloj_img = PhotoImage(file=r"C:\Users\Christian\Desktop\Programación\Python\Mi PY\Miniproyecto Pomodoro\assets\tomato.png")
-        self.canvas_timer.create_image(125, 125, image=self.reloj_img, anchor=CENTER)
-        self.timer_text = self.canvas_timer.create_text(125, 140, text="00:00", fill="#ffffff", font=("Courier", 30, "bold"))
-        self.canvas_timer.grid(row=1, column=1)
+        # Botones para ajustar la duración de la sesión
+        self.sess_label = Label(self.window, text="Session Length", font=FUENTE_ENTRADA, bg=AMARILLO)
+        self.sess_label.grid(column=0, row=1)
+        self.sess_value = Label(self.window, text="25", font=FUENTE_CABECERA, bg=AMARILLO)
+        self.sess_value.grid(column=1, row=1)
 
-        self.timer_label = Label(self.window, text="Timer", font=("Courier", 40), fg=BOTON_START_COLOR, bg=AMARILLO)
-        self.timer_label.grid(row=0, column=1)
+        self.sess_increase = Button(self.window, text="↑", command=self.incrementar_sesion, bg=BOTON_START_COLOR, font=FUENTE_BOTON)
+        self.sess_increase.grid(column=2, row=1)
 
-        self.tick_label = Label(self.window, fg=BOTON_START_COLOR, bg=AMARILLO)
-        self.tick_label.grid(row=3, column=1)
+        self.sess_decrease = Button(self.window, text="↓", command=self.decrementar_sesion, bg=BOTON_START_COLOR, font=FUENTE_BOTON)
+        self.sess_decrease.grid(column=3, row=1)
 
-        self.start_button = Button(self.window, text="Start", command=self.start_timer, highlightthickness=0, bg=BOTON_START_COLOR, fg="#ffffff")
-        self.start_button.grid(row=2, column=0)
+        # Botones para ajustar la duración del descanso
+        self.break_label = Label(self.window, text="Break Length", font=FUENTE_ENTRADA, bg=AMARILLO)
+        self.break_label.grid(column=0, row=2)
+        self.break_value = Label(self.window, text="5", font=FUENTE_CABECERA, bg=AMARILLO)
+        self.break_value.grid(column=1, row=2)
 
-        self.reset_button = Button(self.window, text="Reset", command=self.reset_timer, highlightthickness=0, bg=BOTON_RESET_COLOR, fg="#ffffff")
-        self.reset_button.grid(row=2, column=2)
+        self.break_increase = Button(self.window, text="↑", command=self.incrementar_descanso, bg=BOTON_START_COLOR, font=FUENTE_BOTON)
+        self.break_increase.grid(column=2, row=2)
 
-        self.task_frame = Frame(self.window, bg=AMARILLO)
-        self.task_frame.grid(row=2, column=1, padx=20)
+        self.break_decrease = Button(self.window, text="↓", command=self.decrementar_descanso, bg=BOTON_START_COLOR, font=FUENTE_BOTON)
+        self.break_decrease.grid(column=3, row=2)
 
-        self.task_listbox = Listbox(self.task_frame, height=8, width=25, bg=AMARILLO, fg="#ffffff", selectbackground=BOTON_RESET_COLOR, highlightthickness=1, highlightbackground=BOTON_RESET_COLOR)
-        self.task_listbox.grid(row=2, column=0)
+        # Botón para iniciar el temporizador
+        self.start_button = Button(self.window, text="Start", command=self.iniciar_temporizador, bg=BOTON_START_COLOR, font=FUENTE_BOTON)
+        self.start_button.grid(column=1, row=3)
 
-        self.task_scrollbar = Scrollbar(self.task_frame)
-        self.task_scrollbar.grid(row=2, column=1, sticky="ns")
-        self.task_listbox.config(yscrollcommand=self.task_scrollbar.set)
-        self.task_scrollbar.config(command=self.task_listbox.yview)
+        # Botón para resetear el temporizador
+        self.reset_button = Button(self.window, text="Reset", command=self.resetear_temporizador, bg=BOTON_RESET_COLOR, font=FUENTE_BOTON)
+        self.reset_button.grid(column=2, row=3)
 
-        self.task_entry = Entry(self.task_frame, bg=INPUT_TAREAS_MODO_DIA, fg="#000000", width=28)
-        self.task_entry.grid(row=1, column=0, pady=5)
+    def incrementar_sesion(self):
+        valor = int(self.sess_value["text"])
+        valor += 1
+        self.sess_value.config(text=str(valor))
+        self.temporizador.actualizar_sesion(valor)
 
-        self.add_task_button = Button(self.task_frame, text="Add Task", command=self.add_task, highlightthickness=0, bg="#b2dbf5", fg="#000000")
-        self.add_task_button.grid(row=2, column=4, pady=5)
+    def decrementar_sesion(self):
+        valor = int(self.sess_value["text"])
+        if valor > 1:
+            valor -= 1
+            self.sess_value.config(text=str(valor))
+            self.temporizador.actualizar_sesion(valor)
 
-        self.delete_task_button = Button(self.task_frame, text="Delete Task", command=self.delete_task, highlightthickness=0, bg="#f2f1f0", fg="#000000")
-        self.delete_task_button.grid(row=1, column=4, pady=5)
+    def incrementar_descanso(self):
+        valor = int(self.break_value["text"])
+        valor += 1
+        self.break_value.config(text=str(valor))
+        self.temporizador.actualizar_descanso(valor)
 
-        self.update_task_button = Button(self.task_frame, text="Update Task", command=self.update_task, highlightthickness=0, bg="#b2dbf5", fg="#000000")
-        self.update_task_button.grid(row=3, column=4, pady=5)
+    def decrementar_descanso(self):
+        valor = int(self.break_value["text"])
+        if valor > 1:
+            valor -= 1
+            self.break_value.config(text=str(valor))
+            self.temporizador.actualizar_descanso(valor)
 
-        self.emoji_canvas = Canvas(self.window, bg=AMARILLO, height=50, width=250, highlightthickness=0)
-        self.emoji_canvas.grid(row=2, column=1)
-
-        self.window.mainloop()
-
-    def add_task(self):
-        """Añade una tarea a la lista de tareas."""
-        tarea = self.task_entry.get()
-        if tarea:
-            self.task_listbox.insert(END, tarea)
-            self.task_entry.delete(0, END)
-
-    def delete_task(self):
-        """Elimina la tarea seleccionada de la lista de tareas."""
-        try:
-            selected_index = self.task_listbox.curselection()[0]
-            self.task_listbox.delete(selected_index)
-        except IndexError:
-            pass
-
-    def update_task(self):
-        """Actualiza la tarea seleccionada con el nuevo texto."""
-        try:
-            selected_index = self.task_listbox.curselection()[0]
-            nueva_tarea = self.task_entry.get()
-            if nueva_tarea:
-                self.task_listbox.delete(selected_index)
-                self.task_listbox.insert(selected_index, nueva_tarea)
-                self.task_entry.delete(0, END)
-        except IndexError:
-            pass
-
-    def actualizar_reloj(self, tiempo_restante):
-        minutos, segundos = divmod(tiempo_restante, 60)
-        tiempo_formateado = f"{minutos:02}:{segundos:02}"
-        self.timer_text.config(text=tiempo_formateado)
-
-        if tiempo_restante == 0:
-            self._mostrar_emoji_tomate()
-
-    def _mostrar_emoji_tomate(self):
-        if self.temporizador.contador_pomodoros % 4 == 0 and self.temporizador.contador_pomodoros != 0:
-            emoji = "🍅"
-            self.emoji_canvas.create_text(125, 25, text=emoji, font=("Courier", 24))
-
-    def reset_timer(self):
-        self.temporizador.reset()
-        self.timer_label.config(text="Timer", fg=BOTON_START_COLOR)
-        self.tick_label.config(text="")
-        self.emoji_canvas.delete("all")
-
-    def start_timer(self):
+    def iniciar_temporizador(self):
         self.temporizador.iniciar()
 
-    def expandir(self):
-        self.window.geometry(f"{VENTANA_EXPANDIDA_ANCHO}x{VENTANA_EXPANDIDA_ALTO}")
+    def resetear_temporizador(self):
+        self.temporizador.reset()
+        self.tiempo_restante.config(text="25:00")
+        self.sess_value.config(text="25")
+        self.break_value.config(text="5")
 
-    def contraer(self):
-        self.window.geometry(f"{VENTANA_INICIAL_ANCHO}x{VENTANA_INICIAL_ALTO}")
+    def actualizar_reloj(self, tiempo):
+        self.tiempo_restante.config(text=tiempo)
 
     def modo_noche(self):
-        self.fondo_actual = NOCHE_FONDO
-        self.texto_actual = NOCHE_TEXTO
-        self.boton_start_actual = NOCHE_VERDE
-        self.boton_reset_actual = NOCHE_ROSA
-        self.actualizar_estilos()
+        self.window.config(bg=NOCHE_FONDO)
+        self.tiempo_restante.config(bg=NOCHE_FONDO, fg=NOCHE_TEXTO)
+        self.sess_label.config(bg=NOCHE_FONDO, fg=NOCHE_TEXTO)
+        self.break_label.config(bg=NOCHE_FONDO, fg=NOCHE_TEXTO)
+        self.sess_value.config(bg=NOCHE_FONDO, fg=NOCHE_TEXTO)
+        self.break_value.config(bg=NOCHE_FONDO, fg=NOCHE_TEXTO)
 
     def modo_dia(self):
-        self.fondo_actual = AMARILLO
-        self.texto_actual = "#ffffff"
-        self.boton_start_actual = BOTON_START_COLOR
-        self.boton_reset_actual = BOTON_RESET_COLOR
-        self.actualizar_estilos()
+        self.window.config(bg=AMARILLO)
+        self.tiempo_restante.config(bg=AMARILLO, fg="black")
+        self.sess_label.config(bg=AMARILLO, fg="black")
+        self.break_label.config(bg=AMARILLO, fg="black")
+        self.sess_value.config(bg=AMARILLO, fg="black")
+        self.break_value.config(bg=AMARILLO, fg="black")
 
-    def actualizar_estilos(self):
-        self.window.config(bg=self.fondo_actual)
-        self.canvas_timer.config(bg=self.fondo_actual)
-        self.canvas_timer.itemconfig(self.timer_text, fill=self.texto_actual)
-        self.timer_label.config(fg=self.boton_start_actual, bg=self.fondo_actual)
-        self.tick_label.config(fg=self.boton_start_actual, bg=self.fondo_actual)
-        self.start_button.config(bg=self.boton_start_actual, fg=self.texto_actual)
-        self.reset_button.config(bg=self.boton_reset_actual, fg=self.texto_actual)
-        self.task_frame.config(bg=self.fondo_actual)
-        self.task_listbox.config(bg=self.fondo_actual, fg=self.texto_actual, selectbackground=self.boton_reset_actual)
-        self.task_entry.config(bg=INPUT_TAREAS_MODO_DIA, fg="#000000")
-        self.add_task_button.config(bg="#b2dbf5", fg="#000000")
-        self.delete_task_button.config(bg="#f2f1f0", fg="#000000")
-        self.update_task_button.config(bg="#b2dbf5", fg="#000000")
+if __name__ == "__main__":
+    temporizador = Temporizador()
+    interfaz = InterfazPomodoro(temporizador)
+    interfaz.window.mainloop()
