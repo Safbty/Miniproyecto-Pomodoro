@@ -1,9 +1,13 @@
 import tkinter as tk
 
+
 class Temporizador:
     def __init__(self, window, config):
         self.window = window
         self.config = config
+        self.label = tk.Label(window, text="Temporizador", font=(config.FUENTE, 35), bg=config.fondo_actual)
+        self.label.pack()
+
         self.timer = None
         self.reps = 0
         self.setup_ui()

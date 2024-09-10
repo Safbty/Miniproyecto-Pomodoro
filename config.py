@@ -1,4 +1,4 @@
-import os
+
 
 class Config:
     def __init__(self):
@@ -20,11 +20,6 @@ class Config:
         self.texto_actual = "#ffffff"
         self.boton_start_actual = self.VERDE
         self.boton_reset_actual = self.ROSA
-        self.tomato_image_file = "C:/Users/Christian/Desktop/Programación/Python/My PY/Miniproyecto Pomodoro/assets/tomato.png"
-        #self.tomato_image_file = "assets/tomato.png"  # Ruta relativa
-        if not os.path.exists(self.tomato_image_file):
-            print("Advertencia: La imagen del tomate no se encuentra en la ruta especificada.")
-            self.tomato_image_file = None
 
     def modo_noche(self):
         self.fondo_actual = self.NOCHE_FONDO

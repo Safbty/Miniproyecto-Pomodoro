@@ -3,7 +3,7 @@ from PIL import Image
 import os
 
 # Define la ruta de la imagen
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = "C:/Users/Christian/Desktop/Programación/Python/Mi PY/Miniproyecto Pomodoro/assets/tomato.png."
 IMAGEN_TOMATE_PATH = os.path.join(BASE_DIR, 'assets', 'tomato.png')
 
 def cargar_imagen_tomate():
