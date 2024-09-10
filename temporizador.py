@@ -1,172 +1,47 @@
-import time
-import threading
+import tkinter as tk
 
 class Temporizador:
-    def __init__(self):
-        self.tiempo_restante = 0
-        self.en_curso = False
-        self.estado = "Pomodoro"
-        self.contador_pomodoros = 0
-        self.lock = threading.Lock()
-        self.callback = None
+    def __init__(self, window, config):
+        self.window = window
+        self.config = config
+        self.timer = None
+        self.reps = 0
+        self.setup_ui()
 
-    def set_callback(self, callback):
-        self.callback = callback
+    def setup_ui(self):
+        # Configura el temporizador en la interfaz
+        self.canvas_timer = tk.Canvas(self.window, width=250, height=250, bg=self.config.fondo_actual, highlightthickness=0)
+        self.canvas_timer.pack()
+        self.timer_text = self.canvas_timer.create_text(125, 140, text="00:00", fill=self.config.texto_actual, font=(self.config.FUENTE, 30, "bold"))
 
-    def iniciar(self):
-        self.en_curso = True
-        self._ejecutar()
+    def reset_timer(self):
+        # Resetea el temporizador
+        if self.timer:
+            self.window.after_cancel(self.timer)
+        self.canvas_timer.itemconfig(self.timer_text, text="00:00")
+        self.reps = 0
 
-    def detener(self):
-        self.en_curso = False
+    def start_timer(self):
+        # Inicia el temporizador
+        self.reps += 1
+        work_sec = self.config.WORK_MIN * 60
+        short_break_sec = self.config.SHORT_BREAK_MIN * 60
+        long_break_sec = self.config.LONG_BREAK_MIN * 60
 
-    def reset(self):
-        self.detener()
-        self.tiempo_restante = 0
-        self.estado = "Pomodoro"
-        self.contador_pomodoros = 0
+        if self.reps % 8 == 0:
+            self.count_down(long_break_sec)
+        elif self.reps % 2 == 0:
+            self.count_down(short_break_sec)
+        else:
+            self.count_down(work_sec)
 
-    def _ejecutar(self):
-        while self.en_curso:
-            if self.estado == "Pomodoro":
-                self.tiempo_restante = 25 * 60
-            elif self.estado == "Break":
-                self.tiempo_restante = 5 * 60
-            elif self.estado == "Long Break":
-                self.tiempo_restante = 20 * 60
+    def count_down(self, count):
+        # Cuenta regresivamente
+        contar_minutos = f"{count // 60:02d}"
+        contar_segundos = f"{count % 60:02d}"
+        self.canvas_timer.itemconfig(self.timer_text, text=f"{contar_minutos}:{contar_segundos}")
 
-            while self.tiempo_restante > 0 and self.en_curso:
-                time.sleep(1)
-                self.tiempo_restante -= 1
-                if self.callback:
-                    self.callback(self.tiempo_restante)
-            
-            if not self.en_curso:
-                break
-
-            if self.estado == "Pomodoro":
-                self.contador_pomodoros += 1
-                if self.contador_pomodoros % 4 == 0:
-                    self.estado = "Long Break"
-                else:
-                    self.estado = "Break"
-            else:
-                if self.estado == "Break":
-                    self.estado = "Pomodoro"
-                elif self.estado == "Long Break":
-                    self.estado = "Pomodoro"
-
-def __init__(self, temporizador):
-    self.temporizador = temporizador
-    self.temporizador.set_callback(self.actualizar_reloj)
-    self.fondo_actual = AMARILLO
-    self.texto_actual = "#000000"
-    self.boton_start_actual = BOTON_START_COLOR
-    self.boton_reset_actual = BOTON_RESET_COLOR
-    self.setup_ui()
-
-import time
-
-class Temporizador:
-    def __init__(self):
-        self.callback = None
-        self.tiempo_restante = 0
-        self.contador_pomodoros = 0
-
-    def set_callback(self, callback):
-        self.callback = callback
-
-    def iniciar(self):
-        self.tiempo_restante = 25 * 60  # 25 minutos en segundos
-        self._ejecutar()
-
-    def _ejecutar(self):
-        while self.tiempo_restante > 0:
-            time.sleep(1)
-            self.tiempo_restante -= 1
-            if self.callback:
-                self.callback(self.tiempo_restante)
-        self.contador_pomodoros += 1
-
-    def reset(self):
-        self.tiempo_restante = 0
-        if self.callback:
-            self.callback(self.tiempo_restante)
-
-
-import time
-import threading
-
-class Temporizador:
-    def __init__(self):
-        self.tiempo_restante = 0
-        self.en_curso = False
-        self.estado = "Pomodoro"
-        self.contador_pomodoros = 0
-        self.lock = threading.Lock()
-        self.callback = None
-        self.thread = None
-
-    def set_callback(self, callback):
-        self.callback = callback
-
-    def iniciar(self):
-        with self.lock:
-            self.en_curso = True
-        if self.thread is None or not self.thread.is_alive():
-            self.thread = threading.Thread(target=self._ejecutar)
-            self.thread.start()
-
-    def detener(self):
-        with self.lock:
-            self.en_curso = False
-        if self.thread is not None:
-            self.thread.join()
-
-    def reset(self):
-        self.detener()
-        with self.lock:
-            self.tiempo_restante = 0
-            self.estado = "Pomodoro"
-            self.contador_pomodoros = 0
-
-    def _ejecutar(self):
-        while True:
-            with self.lock:
-                if not self.en_curso:
-                    break
-                if self.estado == "Pomodoro":
-                    self.tiempo_restante = 25 * 60
-                elif self.estado == "Break":
-                    self.tiempo_restante = 5 * 60
-                elif self.estado == "Long Break":
-                    self.tiempo_restante = 20 * 60
-
-            while self.tiempo_restante > 0 and self.en_curso:
-                time.sleep(1)
-                with self.lock:
-                    self.tiempo_restante -= 1
-                if self.callback:
-                    self.callback(self.tiempo_restante)
-
-            if not self.en_curso:
-                break
-
-            with self.lock:
-                if self.estado == "Pomodoro":
-                    self.contador_pomodoros += 1
-                    if self.contador_pomodoros % 4 == 0:
-                        self.estado = "Long Break"
-                    else:
-                        self.estado = "Break"
-                elif self.estado == "Break":
-                    self.estado = "Pomodoro"
-                elif self.estado == "Long Break":
-                    self.estado = "Pomodoro"
-
-class Temporizador:
-    def __init__(self, duracion_pomodoro=25*60, duracion_break=5*60, duracion_long_break=20*60):
-        self.duracion_pomodoro = duracion_pomodoro
-        self.duracion_break = duracion_break
-        self.duracion_long_break = duracion_long_break
-
+        if count > 0:
+            self.timer = self.window.after(1000, self.count_down, count - 1)
+        else:
+            self.start_timer()

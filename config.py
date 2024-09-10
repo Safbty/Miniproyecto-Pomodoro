@@ -1,24 +1,39 @@
-# Colores
-AMARILLO = "#fbfbce"
-BOTON_START_COLOR = "#4CAF50"  # Verde
-BOTON_RESET_COLOR = "#c4687c"  # Amarillo
-NOCHE_FONDO = "#2E2E2E"  # Fondo oscuro para modo noche
-NOCHE_TEXTO = "#FFFFFF"  # Texto blanco para modo noche
-NOCHE_VERDE = "#4CAF50"  # Botón verde para modo noche
-NOCHE_ROSA = "#c36c7e"  # Botón amarillo para modo noche
+import os
 
-# Tamaño de ventana
-VENTANA_EXPANDIDA_ANCHO = 800
-VENTANA_EXPANDIDA_ALTO = 600
-VENTANA_INICIAL_ANCHO = 600
-VENTANA_INICIAL_ALTO = 400
+class Config:
+    def __init__(self):
+        self.ROSA = "#e2979c"
+        self.ROJO = "#e7305b"
+        self.VERDE = "#9bdeac"
+        self.AMARILLO = "#f7f5dd"
+        self.FUENTE = "Courier"
+        self.WORK_MIN = 25
+        self.SHORT_BREAK_MIN = 5
+        self.LONG_BREAK_MIN = 20
+        self.reps = 0
+        self.timer = None
+        self.NOCHE_FONDO = "#2c3e50"
+        self.NOCHE_TEXTO = "#ecf0f1"
+        self.NOCHE_ROSA = "#8e44ad"
+        self.NOCHE_VERDE = "#27ae60"
+        self.fondo_actual = self.AMARILLO
+        self.texto_actual = "#ffffff"
+        self.boton_start_actual = self.VERDE
+        self.boton_reset_actual = self.ROSA
+        self.tomato_image_file = "C:/Users/Christian/Desktop/Programación/Python/My PY/Miniproyecto Pomodoro/assets/tomato.png"
+        #self.tomato_image_file = "assets/tomato.png"  # Ruta relativa
+        if not os.path.exists(self.tomato_image_file):
+            print("Advertencia: La imagen del tomate no se encuentra en la ruta especificada.")
+            self.tomato_image_file = None
 
-# Colores de entrada y botones
-INPUT_TAREAS_MODO_DIA = "#b4b9bc"  # Pewter
+    def modo_noche(self):
+        self.fondo_actual = self.NOCHE_FONDO
+        self.texto_actual = self.NOCHE_TEXTO
+        self.boton_start_actual = self.NOCHE_VERDE
+        self.boton_reset_actual = self.NOCHE_ROSA
 
-#Fuentes
-# Fuentes
-FUENTE_CABECERA = ("Courier", 24)  # Fuente para cabeceras
-FUENTE_BOTON = ("Courier", 14)     # Fuente para botones
-FUENTE_ENTRADA = ("Arial", 12)      # Fuente para entradas de texto
-
+    def modo_dia(self):
+        self.fondo_actual = self.AMARILLO
+        self.texto_actual = "#ffffff"
+        self.boton_start_actual = self.VERDE
+        self.boton_reset_actual = self.ROSA
